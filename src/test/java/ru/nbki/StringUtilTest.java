@@ -14,4 +14,14 @@ class StringUtilTest {
     void replaceChartNullReplaceString() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> StringUtil.replaceChar(null, 'a', 'b'));
     }
+
+    @Test
+    void convertStringToInt() {
+        Assertions.assertEquals(6, StringUtil.convertStringToInt("abcdef"));
+    }
+
+    @Test
+    void convertStringToDouble() {
+        Assertions.assertEquals(101.0, StringUtil.convertStringToDouble("Test string"));
+    }
 }

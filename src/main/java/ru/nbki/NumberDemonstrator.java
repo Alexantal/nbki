@@ -14,6 +14,13 @@ public class NumberDemonstrator {
     private String msgForMultipleThree;
     private String msgForMultipleFive;
 
+    /**
+     * Prints numbers from minCounterValue to maxCounterValue.
+     * If a count number is multiple of three it prints message msgForMultipleThree.
+     * If a count number is multiple of five it prints message msgForMultipleFive.
+     * If a count number is either multiple of three and five it prints msgForMultipleThree + msgForMultipleFive
+     * In other cases it prints a current count number
+     */
     public void startCount() {
         for (int i = minCounterValue; i < maxCounterValue + 1; i++) {
             double remainderByThree = i%3;

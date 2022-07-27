@@ -1,7 +1,8 @@
-package ru.nbki;
+package ru.nbki.task1_2;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import ru.nbki.task1_2.StringUtil;
 
 class StringUtilTest {
 

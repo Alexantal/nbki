@@ -1,4 +1,4 @@
-package ru.nbki;
+package ru.nbki.task1_2;
 
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;

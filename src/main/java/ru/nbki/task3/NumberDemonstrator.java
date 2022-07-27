@@ -1,4 +1,4 @@
-package ru.nbki;
+package ru.nbki.task3;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

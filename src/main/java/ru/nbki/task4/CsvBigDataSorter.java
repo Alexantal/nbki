@@ -92,8 +92,8 @@ public class CsvBigDataSorter {
         List<Path> tempPathList = new ArrayList<>();
         String tmpParentPath = Paths.get(fileName).getParent().toString();
 
-        for (int i = 0; i < tempFilesCount; i++) {
-            Path tempPath = Path.of(tmpParentPath + "\\temp\\sorted_" + tempFilesCount + ".tmp");
+        for (int i = 1; i <= tempFilesCount; i++) {
+            Path tempPath = Path.of(tmpParentPath + "\\temp\\sorted_" + i + ".tmp");
             if (!Files.exists(tempPath)) {
                 log.info("Temp file:{} - don't exist or available. Merge sorting can't be executed.", tempPath);
                 return;
@@ -107,13 +107,16 @@ public class CsvBigDataSorter {
 
         AtomicInteger workChunkCount = new AtomicInteger(tempFilesCount);
 
+        ArrayList<Thread> threads = new ArrayList<>();
 
         //Start chunk reading process
         for (Path p : tempPathList) {
             mergeService.execute(() -> {
                 try(BufferedReader reader = new BufferedReader(new FileReader(p.toFile()))) {
+                    System.out.println(p);
                     String line;
                     int threadCount = 0;
+                    threads.add(Thread.currentThread());
                     while ((line = reader.readLine()) != null) {
                         mergeQueue.add(line);
                         threadCount++;
@@ -124,6 +127,7 @@ public class CsvBigDataSorter {
                         }
                     }
                     workChunkCount.decrementAndGet();
+                    threads.remove(Thread.currentThread());
                 } catch (FileNotFoundException e) {
                     log.info("FileNotFoundException in {} file reading process", p);
                     e.printStackTrace();
@@ -142,7 +146,14 @@ public class CsvBigDataSorter {
                     fileWriter.newLine();
                 }
                 while (workChunkCount.get() != 0 && mergeQueue.size() != 0) {
-                    if (mergeQueue.size() == workChunkCount.get() * 2) {
+                    int waitingStateCount = 0;
+                    for (Thread th : threads) {
+                        if (th.getState() == Thread.State.WAITING) {
+                            waitingStateCount++;
+                        }
+                    }
+
+                    if (waitingStateCount == workChunkCount.get()) {
                         List<String> strAccounts = mergeQueue.stream().toList();
                         List<Account> accounts = new ArrayList<>();
                         for (String s : strAccounts) {
@@ -159,6 +170,7 @@ public class CsvBigDataSorter {
                             fileWriter.newLine();
                         }
                         mergeQueue.clear();
+                        threads.forEach(LockSupport::unpark);
                     }
                 }
             } catch (IOException e) {
@@ -166,6 +178,7 @@ public class CsvBigDataSorter {
                 e.printStackTrace();
             }
         });
+        mergeService.shutdown();
     }
 
     public static void main(String[] args) throws IOException {
